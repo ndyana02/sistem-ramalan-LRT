@@ -9,7 +9,7 @@ rf_model = joblib.load('best_rf_model.pkl')
 scaler = joblib.load('scaler.pkl')
 
 # --- PAGE CONFIG ---
-st.set_page_config(page_title="Sistem Peramalan Penyenggaraan Transit Aliran Ringan", layout="wide")
+st.set_page_config(page_title="Sistem Ramalan Penyenggaraan Transit Aliran Ringan", layout="wide")
 
 # --- CUSTOM CSS ---
 st.markdown("""
@@ -17,6 +17,10 @@ st.markdown("""
     body, .main {
         background-color: #6b2929;
     }
+    .stApp {
+    background-color: #6b2929;
+}
+
     h1, h3, label {
         color: white !important;
     }
