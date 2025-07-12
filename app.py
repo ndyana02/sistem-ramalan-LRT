@@ -119,10 +119,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- INIT STATE ---
-if 'reset_flag' not in st.session_state:
-    st.session_state.reset_flag = False
-if 'previous_data' not in st.session_state:
-    st.session_state.previous_data = []
+for key in ["air_temp", "process_temp", "rotation_speed", "torque", "tool_wear", "reset_flag", "previous_data"]:
+    if key not in st.session_state:
+        if key == "previous_data":
+            st.session_state[key] = []
+        elif key == "reset_flag":
+            st.session_state[key] = False
+        else:
+            st.session_state[key] = ""
 
 # --- TITLE ---
 st.markdown("<h1 style='text-align: center;'>PREDICTIVE MAINTENANCE OF LIGHT RAIL TRANSIT (LRT)</h1>", unsafe_allow_html=True)
@@ -152,25 +156,29 @@ with col1:
 with col2:
     st.markdown("<div style='margin-left: 40%; color: white;'>", unsafe_allow_html=True)
     st.markdown("<h3>PREDICTION</h3>", unsafe_allow_html=True)
-
+    
     if predict_btn:
         st.session_state.reset_flag = False  # Clear reset mode
-        try:
-            input_data = [
-                float(air_temp),
-                float(process_temp),
-                float(rotation_speed),
-                float(torque),
-                float(tool_wear)
-            ]
-            input_scaled = scaler.transform([input_data])
-            prediction = rf_model.predict(input_scaled)[0]
-            st.session_state.previous_data.append({
-                'input': input_data,
-                'prediction': prediction
-            })
-        except ValueError:
-            st.error("Please enter valid numeric values in all fields.")
+
+        if all(val.strip() for val in [air_temp, process_temp, rotation_speed, torque, tool_wear]):
+            try:
+                input_data = [
+                    float(air_temp),
+                    float(process_temp),
+                    float(rotation_speed),
+                    float(torque),
+                    float(tool_wear)
+                ]
+                input_scaled = scaler.transform([input_data])
+                prediction = rf_model.predict(input_scaled)[0]
+                st.session_state.previous_data.append({
+                    'input': input_data,
+                    'prediction': prediction
+                })
+            except ValueError:
+                st.error("Please enter valid numeric values in all fields.")
+        else:
+            st.error("Please fill in all the input fields.")
 
     if st.session_state.previous_data:
         df_history = pd.DataFrame([
