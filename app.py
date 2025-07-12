@@ -38,8 +38,9 @@ st.markdown("""
     .stSelectbox div,
     .stMultiSelect div,
     .stTextArea textarea {
-        color: white !important;
-        background-color: #a66 !important;
+    color: black !important;               
+    background-color: white !important;   
+
     }
 
     .stDataFrame div,
@@ -133,11 +134,11 @@ col1, col2 = st.columns([1, 2])
 with col1:
     st.markdown("""<div class='input-box'><h3>Enter Data</h3>""", unsafe_allow_html=True)
 
-    air_temp = st.text_input("Air temperature [K]:", value="" if st.session_state.reset_flag else st.session_state.get("air_temp", ""), key="air_temp")
-    process_temp = st.text_input("Process temperature [K]:", value="" if st.session_state.reset_flag else st.session_state.get("process_temp", ""), key="process_temp")
-    rotation_speed = st.text_input("Rotational speed [rpm]:", value="" if st.session_state.reset_flag else st.session_state.get("rotation_speed", ""), key="rotation_speed")
-    torque = st.text_input("Torque [Nm]:", value="" if st.session_state.reset_flag else st.session_state.get("torque", ""), key="torque")
-    tool_wear = st.text_input("Tool wear [min]:", value="" if st.session_state.reset_flag else st.session_state.get("tool_wear", ""), key="tool_wear")
+    air_temp = st.text_input("Air temperature [K]:", key="air_temp")
+    process_temp = st.text_input("Process temperature [K]:", key="process_temp")
+    rotation_speed = st.text_input("Rotational speed [rpm]:", key="rotation_speed")
+    torque = st.text_input("Torque [Nm]:", key="torque")
+    tool_wear = st.text_input("Tool wear [min]:", key="tool_wear")
 
     col_submit, col_reset = st.columns(2)
     with col_submit:
@@ -220,8 +221,8 @@ with col2:
             mime='text/csv'
         )
         if st.button("🧹 Clear Prediction History"):
-    st.session_state.previous_data = []
-    st.success("Prediction history cleared.")
+            st.session_state.previous_data = []
+            st.success("Prediction history cleared.")
 
 
     st.markdown("</div>", unsafe_allow_html=True)
