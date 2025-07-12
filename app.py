@@ -14,21 +14,32 @@ st.set_page_config(page_title="Sistem Ramalan Penyenggaraan Transit Aliran Ringa
 # --- CUSTOM CSS ---
 st.markdown("""
     <style>
-    body, .main {
-        background-color: #6b2929;
-    }
     .stApp {
-    background-color: #6b2929;
-}
+        background-color: #6b2929;
+        color: white;
+    }
 
-    h1, h3, label {
+    h1, h2, h3, h4, h5, h6, label, p, span, div {
         color: white !important;
     }
-    .stTextInput > div > div > input, .stNumberInput > div > input {
-        border-radius: 5px;
-        width: 100%;
-        box-sizing: border-box;
+
+    .stTextInput input,
+    .stNumberInput input,
+    .stSelectbox div,
+    .stMultiSelect div,
+    .stTextArea textarea {
+        color: white !important;
+        background-color: #a66 !important;
     }
+
+    .stDataFrame div,
+    .stDataFrame table,
+    .stDataFrame th,
+    .stDataFrame td {
+        color: black !important;
+        background-color: white !important;
+    }
+
     .stButton > button {
         background-color: #ffcccc;
         color: black;
@@ -39,10 +50,12 @@ st.markdown("""
         border: none;
         transition: background-color 0.3s;
     }
+
     .stButton > button:hover {
         background-color: #e57373;
         color: white;
     }
+
     .input-box {
         background-color: #d19b96;
         padding: 10px;
@@ -51,6 +64,7 @@ st.markdown("""
         margin-top: 6px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     }
+
     .failure-box, .no-failure-box {
         color: white;
         padding: 14px;
@@ -60,26 +74,32 @@ st.markdown("""
         margin-bottom: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     }
+
     .failure-box {
         background-color: #c62828;
         width: 100%;
     }
+
     .no-failure-box {
         background-color: #00c853;
         width: 100%;
     }
+
     table {
         width: 100%;
         border-collapse: separate;
         border-spacing: 0 5px;
         font-size: 14px;
     }
+
     td {
         background-color: white;
         padding: 8px;
         border-radius: 5px;
         text-align: center;
+        color: black;
     }
+
     th {
         color: white;
         text-align: center;
@@ -87,27 +107,27 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# --- INIT STATE ---
+if 'reset_flag' not in st.session_state:
+    st.session_state.reset_flag = False
+if 'previous_data' not in st.session_state:
+    st.session_state.previous_data = []
+
 # --- TITLE ---
 st.markdown("<h1 style='text-align: center;'>PREDICTIVE MAINTENANCE OF LIGHT RAIL TRANSIT (LRT)</h1>", unsafe_allow_html=True)
 
 # --- LAYOUT ---
 col1, col2 = st.columns([1, 2])
 
-if 'previous_data' not in st.session_state:
-    st.session_state.previous_data = []
-
 # --- INPUT FORM (LEFT) ---
 with col1:
-    st.markdown("""
-    <div class='input-box'>
-        <h3>Enter Data</h3>
-    """, unsafe_allow_html=True)
+    st.markdown("""<div class='input-box'><h3>Enter Data</h3>""", unsafe_allow_html=True)
 
-    air_temp = st.text_input("Air temperature [K]:", key="air_temp", value="")
-    process_temp = st.text_input("Process temperature [K]:", key="process_temp", value="")
-    rotation_speed = st.text_input("Rotational speed [rpm]:", key="rotation_speed", value="")
-    torque = st.text_input("Torque [Nm]:", key="torque", value="")
-    tool_wear = st.text_input("Tool wear [min]:", key="tool_wear", value="")
+    air_temp = st.text_input("Air temperature [K]:", value="" if st.session_state.reset_flag else st.session_state.get("air_temp", ""), key="air_temp")
+    process_temp = st.text_input("Process temperature [K]:", value="" if st.session_state.reset_flag else st.session_state.get("process_temp", ""), key="process_temp")
+    rotation_speed = st.text_input("Rotational speed [rpm]:", value="" if st.session_state.reset_flag else st.session_state.get("rotation_speed", ""), key="rotation_speed")
+    torque = st.text_input("Torque [Nm]:", value="" if st.session_state.reset_flag else st.session_state.get("torque", ""), key="torque")
+    tool_wear = st.text_input("Tool wear [min]:", value="" if st.session_state.reset_flag else st.session_state.get("tool_wear", ""), key="tool_wear")
 
     col_submit, col_reset = st.columns(2)
     with col_submit:
@@ -116,24 +136,18 @@ with col1:
         reset_btn = st.button("RESET")
 
     if reset_btn:
-        # Clear input fields only
-        st.session_state.air_temp = ""
-        st.session_state.process_temp = ""
-        st.session_state.rotation_speed = ""
-        st.session_state.torque = ""
-        st.session_state.tool_wear = ""
+        st.session_state.reset_flag = True
+        st.experimental_rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
 
 # --- PREDICTION + RESULT (RIGHT) ---
 with col2:
-    # Wrap everything in a div with margin-left to push content right
     st.markdown("<div style='margin-left: 40%; color: white;'>", unsafe_allow_html=True)
-
-    # Prediction Title
     st.markdown("<h3>PREDICTION</h3>", unsafe_allow_html=True)
 
     if predict_btn:
+        st.session_state.reset_flag = False  # Clear reset mode
         try:
             input_data = [
                 float(air_temp),
@@ -142,10 +156,8 @@ with col2:
                 float(torque),
                 float(tool_wear)
             ]
-
             input_scaled = scaler.transform([input_data])
             prediction = rf_model.predict(input_scaled)[0]
-
             st.session_state.previous_data.append({
                 'input': input_data,
                 'prediction': prediction
@@ -169,16 +181,11 @@ with col2:
         for data in st.session_state.previous_data[::-1]:
             air_temp_val, process_temp_val, rotation_speed_val, torque_val, tool_wear_val = data['input']
             prediction = data['prediction']
-
             box_class = "no-failure-box" if prediction == 0 else "failure-box"
             message = "NO FAILURE" if prediction == 0 else "FAILURE DETECTED"
+            st.markdown(f"<div class='{box_class}'>{message}</div>", unsafe_allow_html=True)
 
-            result_box = f"""
-            <div class='{box_class}'>{message}</div>
-            """
-            st.markdown(result_box, unsafe_allow_html=True)
-
-            table_html = f"""
+            st.markdown(f"""
             <table>
                 <tr>
                     <th>Air temperature [K]</th>
@@ -197,10 +204,8 @@ with col2:
                     <td>{'✅' if prediction == 0 else '❌'}</td>
                 </tr>
             </table>
-            """
-            st.markdown(table_html, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
-        # Download button
         csv = df_history.to_csv(index=False).encode('utf-8')
         st.download_button(
             label="📥 Download Prediction History",
