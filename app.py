@@ -18,8 +18,9 @@ def reset_fields():
     st.session_state.reset_flag = True
     st.rerun()
 
-# --- PAGE CONFIG ---
-st.set_page_config(page_title="Sistem Ramalan Penyenggaraan Transit Aliran Ringan", layout="wide")
+def main():
+  # --- PAGE CONFIG ---
+  st.set_page_config(page_title="Sistem Ramalan Penyenggaraan Transit Aliran Ringan", layout="wide")
 
 # --- CUSTOM CSS ---
 st.markdown("""
@@ -247,3 +248,7 @@ with col2:
             st.success("Prediction history cleared.")
 
     st.markdown("</div>", unsafe_allow_html=True)
+
+# --- RUN ---
+if __name__ == "__main__":
+  main()
