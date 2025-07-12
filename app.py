@@ -138,11 +138,11 @@ col1, col2 = st.columns([1, 2])
 with col1:
     st.markdown("""<div class='input-box'><h3>Enter Data</h3>""", unsafe_allow_html=True)
 
-    air_temp = st.text_input("Air temperature [K]:", key="air_temp")
-    process_temp = st.text_input("Process temperature [K]:", key="process_temp")
-    rotation_speed = st.text_input("Rotational speed [rpm]:", key="rotation_speed")
-    torque = st.text_input("Torque [Nm]:", key="torque")
-    tool_wear = st.text_input("Tool wear [min]:", key="tool_wear")
+    st.text_input("Air temperature [K]:", key="air_temp")
+    st.text_input("Process temperature [K]:", key="process_temp")
+    st.text_input("Rotational speed [rpm]:", key="rotation_speed")
+    st.text_input("Torque [Nm]:", key="torque")
+    st.text_input("Tool wear [min]:", key="tool_wear")
 
     col_submit, col_reset = st.columns(2)
     with col_submit:
@@ -156,30 +156,44 @@ with col1:
 with col2:
     st.markdown("<div style='margin-left: 40%; color: white;'>", unsafe_allow_html=True)
     st.markdown("<h3>PREDICTION</h3>", unsafe_allow_html=True)
-    
+
     if predict_btn:
         st.session_state.reset_flag = False  # Clear reset mode
 
-        if all(val.strip() for val in [air_temp, process_temp, rotation_speed, torque, tool_wear]):
-            try:
-                input_data = [
-                    float(air_temp),
-                    float(process_temp),
-                    float(rotation_speed),
-                    float(torque),
-                    float(tool_wear)
-                ]
-                input_scaled = scaler.transform([input_data])
-                prediction = rf_model.predict(input_scaled)[0]
-                st.session_state.previous_data.append({
-                    'input': input_data,
-                    'prediction': prediction
-                })
-            except ValueError:
-                st.error("Please enter valid numeric values in all fields.")
-        else:
-            st.error("Please fill in all the input fields.")
+        # Check and convert inputs
+        inputs = {}
+        fields = {
+            "air_temp": "Air temperature",
+            "process_temp": "Process temperature",
+            "rotation_speed": "Rotational speed",
+            "torque": "Torque",
+            "tool_wear": "Tool wear"
+        }
 
+        error_flag = False
+        for key, label in fields.items():
+            val = st.session_state.get(key, "").strip()
+            if val == "":
+                st.error(f"{label} is required.")
+                error_flag = True
+            else:
+                try:
+                    inputs[key] = float(val)
+                except ValueError:
+                    st.error(f"{label} must be a number.")
+                    error_flag = True
+
+        if not error_flag:
+            input_list = list(inputs.values())
+            input_scaled = scaler.transform([input_list])
+            prediction = rf_model.predict(input_scaled)[0]
+
+            st.session_state.previous_data.append({
+                'input': input_list,
+                'prediction': prediction
+            })
+
+    # Show results
     if st.session_state.previous_data:
         df_history = pd.DataFrame([
             {
@@ -221,6 +235,7 @@ with col2:
             </table>
             """, unsafe_allow_html=True)
 
+        # Download & Clear buttons
         csv = df_history.to_csv(index=False).encode('utf-8')
         st.download_button(
             label="📥 Download Prediction History",
@@ -231,6 +246,5 @@ with col2:
         if st.button("🧹 Clear Prediction History"):
             st.session_state.previous_data = []
             st.success("Prediction history cleared.")
-
 
     st.markdown("</div>", unsafe_allow_html=True)
