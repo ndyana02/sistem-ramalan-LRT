@@ -16,7 +16,6 @@ def reset_fields():
     st.session_state.torque = ""
     st.session_state.tool_wear = ""
     st.session_state.reset_flag = True
-    st.rerun()
 
 def main():
     # --- PAGE CONFIG ---
