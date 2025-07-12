@@ -137,7 +137,6 @@ col1, col2 = st.columns([1, 2])
 # --- INPUT FORM (LEFT) ---
 with col1:
     st.markdown("""<div class='input-box'><h3>Enter Data</h3>""", unsafe_allow_html=True)
-
     st.text_input("Air temperature [K]:", key="air_temp")
     st.text_input("Process temperature [K]:", key="process_temp")
     st.text_input("Rotational speed [rpm]:", key="rotation_speed")
