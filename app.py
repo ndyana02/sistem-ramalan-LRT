@@ -8,6 +8,16 @@ import pandas as pd
 rf_model = joblib.load('best_rf_model.pkl')
 scaler = joblib.load('scaler.pkl')
 
+# --- RESET FUNCTION ---
+def reset_fields():
+    st.session_state.air_temp = ""
+    st.session_state.process_temp = ""
+    st.session_state.rotation_speed = ""
+    st.session_state.torque = ""
+    st.session_state.tool_wear = ""
+    st.session_state.reset_flag = True
+    st.rerun()
+
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Sistem Ramalan Penyenggaraan Transit Aliran Ringan", layout="wide")
 
@@ -133,11 +143,7 @@ with col1:
     with col_submit:
         predict_btn = st.button("SUBMIT")
     with col_reset:
-        reset_btn = st.button("RESET")
-
-    if reset_btn:
-        st.session_state.reset_flag = True
-        st.rerun()
+        reset_btn = st.button("RESET", on_click=reset_fields)
 
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -213,5 +219,9 @@ with col2:
             file_name='lrt_predictions.csv',
             mime='text/csv'
         )
+        if st.button("🧹 Clear Prediction History"):
+    st.session_state.previous_data = []
+    st.success("Prediction history cleared.")
+
 
     st.markdown("</div>", unsafe_allow_html=True)
