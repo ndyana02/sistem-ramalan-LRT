@@ -137,7 +137,7 @@ with col1:
 
     if reset_btn:
         st.session_state.reset_flag = True
-        st.experimental_rerun()
+        st.rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
 
