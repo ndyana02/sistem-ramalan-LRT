@@ -240,9 +240,6 @@ def main():
                 file_name='lrt_predictions.csv',
                 mime='text/csv'
             )
-            if st.button("🧹 Clear Prediction History"):
-                st.session_state.previous_data = []
-                st.success("Prediction history cleared.")
 
         st.markdown("</div>", unsafe_allow_html=True)
 
